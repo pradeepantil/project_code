@@ -1,3 +1,50 @@
 ---
-name: playbook to install nginx on Ubuntu
-hots: all  
+- name: Install Nginx and PHP on Ubuntu Server
+  hosts: ubuntu_servers
+  become: true
+  vars:
+    php_version: "php8.1"  # Specify the PHP version you want to install
+
+  tasks:
+    - name: Update the apt package index
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Ensure Nginx is enabled and running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Install PHP and necessary PHP modules
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "{{ php_version }}"
+        - "{{ php_version }}-fpm"
+        - "{{ php_version }}-cli"
+        - "{{ php_version }}-common"
+        - "{{ php_version }}-mbstring"
+        - "{{ php_version }}-xml"
+        - "{{ php_version }}-curl"
+        - "{{ php_version }}-zip"
+      notify: Restart PHP-FPM
+
+    - name: Ensure PHP-FPM is enabled and running
+      service:
+        name: "{{ php_version }}-fpm"
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Restart PHP-FPM
+      service:
+        name: "{{ php_version }}-fpm"
+        state: restarted
+
