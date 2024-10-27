@@ -3,7 +3,7 @@
   hosts: ubuntu_servers
   become: true
   vars:
-    php_version: "php8.2"  # Specify the PHP version you want to install
+    php_version: "php8.3"  # Specify the PHP version you want to install
 
   tasks:
     - name: Update the apt package index
